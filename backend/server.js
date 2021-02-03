@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const cors = require('cors')
 // bring routes
 const blogRoutes = require('./routes/blog');
+const authRoutes =require('./routes/auth');
 
 // Create app
 const app = express();
@@ -26,6 +27,7 @@ app.use(cookieParser());
 
 //middleware routes
 app.use('/api',blogRoutes);
+app.use('/api',authRoutes);
 
 //cors
 if(process.env.NODE_ENV === 'development'){
