@@ -11,6 +11,7 @@ const authRoutes =require('./routes/auth');
 
 // Create app
 const app = express();
+app.use(cors());
 
 // db connect
 mongoose
@@ -30,9 +31,11 @@ app.use('/api',blogRoutes);
 app.use('/api',authRoutes);
 
 //cors
-if(process.env.NODE_ENV === 'development'){
-    app.use(cors({origin: `${process.env.CLIENT_URL}`}));
-}
+// if(process.env.NODE_ENV === 'development'){
+//     app.use(cors({origin: `${process.env.CLIENT_URL}`}));
+// }
+
+
 
 // Port
 const port = process.env.PORT || 8000;

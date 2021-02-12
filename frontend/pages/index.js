@@ -1,5 +1,7 @@
 import Layout from '../components/Layout';
 import Link from 'next/link';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 const Index = () => {
     return (

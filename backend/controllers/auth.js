@@ -20,7 +20,7 @@ exports.signup = (req,res) => {
         newUser.save((err,success)=>{
             if(err){
                 return res.status(400).json({
-                    error:err
+                    error:'SIgnup Error'
                 })
             }
             // res.json({
