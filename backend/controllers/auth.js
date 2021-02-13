@@ -107,7 +107,7 @@ exports.adminMiddleware = (req,res,next) => {
             })
         }
         //to check if he is admin
-        if(user.role != 1){
+        if(user.role !== 1){
             return res.status(400).json({
                 error: 'Admin resource. Access denied!'
             })
