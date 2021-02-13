@@ -33,6 +33,20 @@ const Header = () => {
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
           <Nav className="ml-auto" navbar>
+
+          {isAuth() && isAuth().role === 0 && <> <NavItem>    
+                    <Link href="/user">
+                    <NavLink >{`${isAuth().name}'s Dashboard`}</NavLink>
+                    </Link>
+            </NavItem> </>}
+
+
+            {isAuth() && isAuth().role === 1 && <> <NavItem>    
+                    <Link href="/admin">
+                    <NavLink >{`${isAuth().name}'s Dashboard`}</NavLink>
+                    </Link>
+            </NavItem> </>}
+
            {!isAuth() && <> 
             <NavItem>
             <Link href="/signin">
@@ -45,9 +59,11 @@ const Header = () => {
                   </Link>
             </NavItem>
            </>}
+
             {isAuth() && <> <NavItem>    
                     <NavLink style={{cursor: 'pointer'}} onClick={() => {signout(()=>{ Router.push(`/signin`)})}}>SignOut</NavLink>
             </NavItem> </>}
+
           </Nav>
         </Collapse>
       </Navbar>

@@ -8,6 +8,7 @@ const cors = require('cors')
 // bring routes
 const blogRoutes = require('./routes/blog');
 const authRoutes =require('./routes/auth');
+const userRoutes =require('./routes/user');
 
 // Create app
 const app = express();
@@ -29,6 +30,7 @@ app.use(cookieParser());
 //middleware routes
 app.use('/api',blogRoutes);
 app.use('/api',authRoutes);
+app.use('/api',userRoutes);
 
 //cors
 // if(process.env.NODE_ENV === 'development'){

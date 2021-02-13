@@ -3,6 +3,7 @@ const shortId = require('shortid'); //used to generate random user id when a use
 const jwt = require('jsonwebtoken');
 const expressJwt = require('express-jwt'); //this will help to check if the JWT has expired or is it still valid?
 
+
 exports.signup = (req,res) => {
 
     User.findOne({email:req.body.email}).exec((err,user) => {
@@ -77,4 +78,41 @@ exports.requireSignin = expressJwt({
     secret: process.env.JWT_SECRET,
     algorithms: ["HS256"],
     userProperty: "auth",
-})
+});
+
+
+exports.authMiddleware = (req,res,next) => {
+    const authUserId = req.auth._id;
+
+    User.findById({_id: authUserId}).exec((err, user) => {
+        if(err || !user){
+            return res.status(400).json({
+                error: 'User not found!'
+            })
+        }
+
+        req.profile = user;
+        next();
+    })
+}
+
+
+exports.adminMiddleware = (req,res,next) => {
+    const adminUserId = req.auth._id;
+
+    User.findById({_id: adminUserId}).exec((err, user) => {
+        if(err || !user){
+            return res.status(400).json({
+                error: 'User not found!'
+            })
+        }
+        //to check if he is admin
+        if(user.role != 1){
+            return res.status(400).json({
+                error: 'Admin resource. Access denied!'
+            })
+        }
+        req.profile = user;
+        next();
+    })
+}
