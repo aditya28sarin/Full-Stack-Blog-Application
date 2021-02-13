@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { signin } from '../../actions/auth';
+import { useEffect, useState } from 'react';
+import { signin, authenticate, isAuth } from '../../actions/auth';
 import { Button } from 'react-bootstrap';
 import Router from 'next/router';
 
@@ -16,19 +16,25 @@ const SigninComponent = () => {
 
     const { email, password, error, loading, message, showForm } = values;
 
+    //anytime there is a change in the state, this will run automatically
+    useEffect(() => {
+        //to redirect user to home page if he is signed in and tries to access login page 
+        isAuth() && Router.push(`/`);
+    }, [])
+
     const handleSubmit = e => {
         e.preventDefault();
-        // console.table({ name, email, password, error, loading, message, showForm });
         setValues({ ...values, loading: true, error: false });
         const user = { email, password };
 
         signin(user).then(data => {
-            if (data.error) {
-                setValues({ ...values, error: data.error, loading: false });
-            } else {
-               //redirect after signing in, for now home page
-               Router.push(`/`);
-            }
+            // if (data.error) {
+            //     setValues({ ...values, error: 'error', loading: false });
+            // } else {
+                authenticate(data, () => {
+                    Router.push(`/`);
+                })
+            //}
         });
     };
 
@@ -65,7 +71,7 @@ const SigninComponent = () => {
                 </div>
 
                 <div>
-                    <button className="btn btn-primary">Signup</button>
+                    <button className="btn btn-primary">Signin</button>
                 </div>
             </form>
         );

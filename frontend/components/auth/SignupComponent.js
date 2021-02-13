@@ -1,6 +1,8 @@
-import { useState } from 'react';
-import { signup } from '../../actions/auth';
+import { useState, useEffect } from 'react';
+import { signup, isAuth } from '../../actions/auth';
 import { Button } from 'react-bootstrap';
+import Router from 'next/router';
+
 
 const SignupComponent = () => {
     const [values, setValues] = useState({
@@ -14,6 +16,12 @@ const SignupComponent = () => {
     });
 
     const { name, email, password, error, loading, message, showForm } = values;
+
+    useEffect(() => {
+        //to redirect user to home page if he is signed in and tries to access signup page 
+        isAuth() && Router.push(`/`);
+    }, [])
+
 
     const handleSubmit = e => {
         e.preventDefault();
