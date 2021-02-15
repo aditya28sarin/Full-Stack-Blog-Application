@@ -26,6 +26,7 @@
     "shortid": "^2.2.16",
     "slugify": "^1.4.6",
     "string-strip-html": "^8.1.0"
+    
   },
   "devDependencies": {},
   "description": ""
