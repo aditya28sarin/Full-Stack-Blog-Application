@@ -48,6 +48,12 @@ const Header = () => {
             </NavItem> </>}
 
 
+          <> <NavItem>    
+                    <Link href="/blogs">
+                    <NavLink >Blogs</NavLink>
+                    </Link>
+            </NavItem> </>
+
             {isAuth() && isAuth().role === 1 && <> <NavItem>    
                     <Link href="/admin">
                     <NavLink >{`${isAuth().name}'s Dashboard`}</NavLink>

@@ -11,6 +11,7 @@ const Index = () => {
             <Link  href="/signup">
                 <a>Signup</a>
             </Link>
+            <div className="div">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Minus, dolorum obcaecati harum itaque libero nam ab ipsam nihil odio consequuntur voluptatum alias. Molestiae, fuga. Tenetur, aperiam. Aliquid accusantium molestias distinctio!2000</div>
         </Layout>
     );
 };
