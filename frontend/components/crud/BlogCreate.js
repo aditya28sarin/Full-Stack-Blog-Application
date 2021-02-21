@@ -1,51 +1,52 @@
 import Link from 'next/link';
-import {useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import Router from 'next/router';
-import dynamic from 'next/dynamic'; //we will use react quill as our rich text editor, 
-                                    //and it runs only in client side, we want to make sure it does not run ins erver so we use this,
-                                    // to dynamically load the component
-import {withRouter} from 'next/router';
-import {getCookie, isAuth} from '../../actions/auth';
-import {getCategories} from '../../actions/category';
-import {getTags} from '../../actions/tag';
-import {createBlog} from '../../actions/blog';
-const ReactQuill = dynamic(() => import('react-quill'), {ssr:false});
+import dynamic from 'next/dynamic';
+import { withRouter } from 'next/router';
+import { getCookie, isAuth } from '../../actions/auth';
+import { getCategories } from '../../actions/category';
+import { getTags } from '../../actions/tag';
+import { createBlog } from '../../actions/blog';
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 import '../../node_modules/react-quill/dist/quill.snow.css';
 
-const BlogCreate = ({router}) => {
-
+const CreateBlog = ({ router }) => {
     const blogFromLS = () => {
-        if(typeof window === 'undefined'){
+        if (typeof window === 'undefined') {
             return false;
         }
 
-        if(localStorage.getItem('blog')){
+        if (localStorage.getItem('blog')) {
             return JSON.parse(localStorage.getItem('blog'));
-        } else{
+        } else {
             return false;
         }
-    }
+    };
 
-    const [body, setBody] = useState(blogFromLS());
     const [categories, setCategories] = useState([]);
     const [tags, setTags] = useState([]);
-    const [values, setValues] = useState({
-        error:'',
-        sizeError:'',
-        success:'',
-        formData:'',
-        title:'',
-        hidePublishButton:false
-    })
 
-    const {error, sizeError, success, formData, title, hidePublishButton} = values;
-    
-    useEffect(()=>{
-        setValues({...values, formData: new FormData});
+    const [checked, setChecked] = useState([]); // categories
+    const [checkedTag, setCheckedTag] = useState([]); // tags
+
+    const [body, setBody] = useState(blogFromLS());
+    const [values, setValues] = useState({
+        error: '',
+        sizeError: '',
+        success: '',
+        formData: '',
+        title: '',
+        hidePublishButton: false
+    });
+
+    const { error, sizeError, success, formData, title, hidePublishButton } = values;
+    const token = getCookie('token');
+
+    useEffect(() => {
+        setValues({ ...values, formData: new FormData() });
         initCategories();
         initTags();
     }, [router]);
-
 
     const initCategories = () => {
         getCategories().then(data => {
@@ -67,39 +68,75 @@ const BlogCreate = ({router}) => {
         });
     };
 
-
-    const publishBlog = (e) => {
+    const publishBlog = e => {
         e.preventDefault();
-        console.log('ready to publish blog.');
-    }
-    //this is a function returning another function 
-    const handleChange = name => e => {
-       // console.log(e.target.value);
-        
-       const value = name === 'photo' ? e.target.files[0] : e.target.value;
-       formData.set(name, value);
-       setValues({...values, [name]: value, formData:formData, error: ''});
+        // console.log('ready to publishBlog');
+        createBlog(formData, token).then(data => {
+            if (data.error) {
+                setValues({ ...values, error: data.error });
+            } else {
+                setValues({ ...values, title: '', error: '', success: `A new blog titled "${data.title}" is created` });
+                setBody('');
+                setCategories([]);
+                setTags([]);
+            }
+        });
+    };
 
-    }
+    const handleChange = name => e => {
+        // console.log(e.target.value);
+        const value = name === 'photo' ? e.target.files[0] : e.target.value;
+        formData.set(name, value);
+        setValues({ ...values, [name]: value, formData, error: '' });
+    };
 
     const handleBody = e => {
-        //console.log(e);
+        // console.log(e);
         setBody(e);
-        formData.set('body',e);
-
-        //we want to also save this in local storage so that it is not lost on refresh 
-
-        if(typeof window !== 'undefined'){
-            localStorage.setItem('blog',JSON.stringify(e));
+        formData.set('body', e);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('blog', JSON.stringify(e));
         }
-    }
+    };
+
+    const handleToggle = c => () => {
+        setValues({ ...values, error: '' });
+        // return the first index or -1
+        const clickedCategory = checked.indexOf(c);
+        const all = [...checked];
+
+        if (clickedCategory === -1) {
+            all.push(c);
+        } else {
+            all.splice(clickedCategory, 1);
+        }
+        console.log(all);
+        setChecked(all);
+        formData.set('categories', all);
+    };
+
+    const handleTagsToggle = t => () => {
+        setValues({ ...values, error: '' });
+        // return the first index or -1
+        const clickedTag = checked.indexOf(t);
+        const all = [...checkedTag];
+
+        if (clickedTag === -1) {
+            all.push(t);
+        } else {
+            all.splice(clickedTag, 1);
+        }
+        console.log(all);
+        setCheckedTag(all);
+        formData.set('tags', all);
+    };
 
     const showCategories = () => {
         return (
             categories &&
             categories.map((c, i) => (
                 <li key={i} className="list-unstyled">
-                    <input type="checkbox" className="mr-2" />
+                    <input onChange={handleToggle(c._id)} type="checkbox" className="mr-2" />
                     <label className="form-check-label">{c.name}</label>
                 </li>
             ))
@@ -111,7 +148,7 @@ const BlogCreate = ({router}) => {
             tags &&
             tags.map((t, i) => (
                 <li key={i} className="list-unstyled">
-                    <input type="checkbox" className="mr-2" />
+                    <input onChange={handleTagsToggle(t._id)} type="checkbox" className="mr-2" />
                     <label className="form-check-label">{t.name}</label>
                 </li>
             ))
@@ -122,22 +159,30 @@ const BlogCreate = ({router}) => {
         return (
             <form onSubmit={publishBlog}>
                 <div className="form-group">
-                    <label htmlFor="" className="text-muted">Title</label>
-                    <input type="text" className="form-control" value={title} onChange={handleChange('title')}/>
+                    <label className="text-muted">Title</label>
+                    <input type="text" className="form-control" value={title} onChange={handleChange('title')} />
                 </div>
 
                 <div className="form-group">
-                    <ReactQuill modules={BlogCreate.modules} formats={BlogCreate.formats} value={body} placeholder="Type something.." onChange={handleBody} />
+                    <ReactQuill
+                        modules={CreateBlog.modules}
+                        formats={CreateBlog.formats}
+                        value={body}
+                        placeholder="Write something amazing..."
+                        onChange={handleBody}
+                    />
                 </div>
 
                 <div>
-                    <button className="btn btn-primary" type="submit">Publish</button>
+                    <button type="submit" className="btn btn-primary">
+                        Publish
+                    </button>
                 </div>
             </form>
-        )
-    }
-    
-    return(
+        );
+    };
+
+    return (
         <div className="container-fluid">
             <div className="row">
                 <div className="col-md-8">
@@ -151,24 +196,38 @@ const BlogCreate = ({router}) => {
                     <hr />
                     {JSON.stringify(tags)}
                 </div>
+
                 <div className="col-md-4">
+                    <div>
+                        <div className="form-group pb-2">
+                            <h5>Featured image</h5>
+                            <hr />
+
+                            <small className="text-muted">Max size: 1mb</small>
+                            <label className="btn btn-outline-info">
+                                Upload featured image
+                                <input onChange={handleChange('photo')} type="file" accept="image/*" hidden />
+                            </label>
+                        </div>
+                    </div>
                     <div>
                         <h5>Categories</h5>
                         <hr />
-                        <ul style={{maxHeight:'200px', overflowY:'scroll'}}>{showCategories()}</ul>
+
+                        <ul style={{ maxHeight: '200px', overflowY: 'scroll' }}>{showCategories()}</ul>
                     </div>
                     <div>
                         <h5>Tags</h5>
                         <hr />
-                        <ul style={{maxHeight:'200px', overflowY:'scroll'}}>{showTags()}</ul>
+                        <ul style={{ maxHeight: '200px', overflowY: 'scroll' }}>{showTags()}</ul>
                     </div>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-BlogCreate.modules = {
+CreateBlog.modules = {
     toolbar: [
         [{ header: '1' }, { header: '2' }, { header: [3, 4, 5, 6] }, { font: [] }],
         [{ size: [] }],
@@ -179,8 +238,8 @@ BlogCreate.modules = {
         ['code-block']
     ]
 };
- 
-BlogCreate.formats = [
+
+CreateBlog.formats = [
     'header',
     'font',
     'size',
@@ -197,4 +256,4 @@ BlogCreate.formats = [
     'code-block'
 ];
 
-export default withRouter(BlogCreate);
+export default withRouter(CreateBlog);
