@@ -35,14 +35,17 @@ const blogSchema = new mongoose.Schema(
             data: Buffer,
             contentType: String
         },
-        categories: [{ type: ObjectId, ref: 'Category', required: true }],
-        tags: [{ type: ObjectId, ref: 'Tag', required: true }],
+
         postedBy: {
             type: ObjectId,
             ref: 'User'
-        }
+        },
+
+        categories: [{ type: ObjectId, ref: 'Category', required: true }],
+        tags: [{ type: ObjectId, ref: 'Tag', required: true }],
+       
     },
-    { timestamp: true }
+    { timestamps: true }
 );
 
 module.exports = mongoose.model('Blog', blogSchema);
