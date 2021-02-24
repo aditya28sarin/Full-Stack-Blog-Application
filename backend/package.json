@@ -18,6 +18,7 @@
     "express-jwt": "^6.0.0",
     "express-validator": "^6.9.2",
     "formidable": "^1.2.2",
+    "google-auth-library": "^7.0.2",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.20",
     "mongoose": "^5.11.11",
@@ -26,7 +27,6 @@
     "shortid": "^2.2.16",
     "slugify": "^1.4.6",
     "string-strip-html": "^8.1.0"
-    
   },
   "devDependencies": {},
   "description": ""

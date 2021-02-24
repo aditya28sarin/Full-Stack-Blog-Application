@@ -65,7 +65,7 @@ const BlogRead = () => {
                 <div key={i} className="pb-5">
                     <h3>{blog.title}</h3>
                     <p className="mark">
-                        {/* Written by {blog.postedBy.name} |  */}
+                        {/* Written by {blog.postedBy} |  */}
                         Published on {moment(blog.updatedAt).fromNow()}
                     </p>
                     <button className="btn btn-sm btn-danger" onClick={() => deleteConfirm(blog.slug)}>
