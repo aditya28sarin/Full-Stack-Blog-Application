@@ -1,17 +1,16 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import React from 'react';
 import Layout from '../../components/Layout';
+import { useState, useEffect } from 'react';
+import { singleBlog, listRelated } from '../../actions/blog';
+import { API, DOMAIN, APP_NAME, FB_APP_ID } from '../../config';
 import renderHTML from 'react-render-html';
 import moment from 'moment';
-import { useState, useEffect } from 'react';
-import { singleBlog, listRelated} from '../../actions/blog';
-import { API, DOMAIN, APP_NAME, FB_APP_ID } from '../../config';
 import SmallCard from '../../components/blog/SmallCard';
-
-
+import DisqusThread from '../../components/DisqusThread';
 
 const SingleBlog = ({ blog, query }) => {
-
     const [related, setRelated] = useState([]);
 
     const loadRelated = () => {
@@ -49,18 +48,18 @@ const SingleBlog = ({ blog, query }) => {
     );
 
     const showBlogCategories = blog =>
-    blog.categories.map((c, i) => (
-        <Link key={i} href={`/categories/${c.slug}`}>
-            <a className="btn btn-primary mr-1 ml-1 mt-3">{c.name}</a>
-        </Link>
-    ));
+        blog.categories.map((c, i) => (
+            <Link key={i} href={`/categories/${c.slug}`}>
+                <a className="btn btn-primary mr-1 ml-1 mt-3">{c.name}</a>
+            </Link>
+        ));
 
-const showBlogTags = blog =>
-    blog.tags.map((t, i) => (
-        <Link key={i} href={`/tags/${t.slug}`}>
-            <a className="btn btn-outline-primary mr-1 ml-1 mt-3">{t.name}</a>
-        </Link>
-    ));
+    const showBlogTags = blog =>
+        blog.tags.map((t, i) => (
+            <Link key={i} href={`/tags/${t.slug}`}>
+                <a className="btn btn-outline-primary mr-1 ml-1 mt-3">{t.name}</a>
+            </Link>
+        ));
 
     const showRelatedBlog = () => {
         return related.map((blog, i) => (
@@ -71,7 +70,15 @@ const showBlogTags = blog =>
             </div>
         ));
     };
-    
+
+    const showComments = () => {
+        return (
+            <div>
+                <DisqusThread id={blog._id} title={blog.title} path={`/blog/${blog.slug}`} />
+            </div>
+        );
+    };
+
     return (
         <>
             {head()}
@@ -88,12 +95,16 @@ const showBlogTags = blog =>
                                     />
                                 </div>
                             </section>
+
                             <section>
                                 <div className="container">
                                     <h1 className="display-2 pb-3 pt-3 text-center font-weight-bold">{blog.title}</h1>
                                     <p className="lead mt-3 mark">
-                                        {/* Written by {blog.postedBy.name} |  */}
-                                        Published {moment(blog.updatedAt).fromNow()}
+                                        Written by{' '}
+                                        {/* <Link href={`/profile/${blog.postedBy.username}`}>
+                                            <a>{blog.postedBy.username}</a>
+                                        </Link>{' '} */}
+                                        | Published {moment(blog.updatedAt).fromNow()}
                                     </p>
 
                                     <div className="pb-3">
@@ -113,13 +124,11 @@ const showBlogTags = blog =>
                         </div>
 
                         <div className="container">
-                            <h4 className="text-center pt-5 pb-5 h2">Related Blogs</h4>
+                            <h4 className="text-center pt-5 pb-5 h2">Related blogs</h4>
                             <div className="row">{showRelatedBlog()}</div>
                         </div>
 
-                        <div className="container pb-5">
-                            <p>show comments</p>
-                        </div>
+                        <div className="container pt-5 pb-5">{showComments()}</div>
                     </article>
                 </main>
             </Layout>

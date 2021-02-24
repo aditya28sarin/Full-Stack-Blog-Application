@@ -2,6 +2,21 @@ import fetch from 'isomorphic-fetch';
 import { API } from '../config';
 import cookie, { remove } from 'js-cookie';
 
+
+export const handleResponse = response => {
+    if (response.status === 401) {
+        signout(() => {
+            Router.push({
+                pathname: '/signin',
+                query: {
+                    message: 'Your session is expired. Please signin'
+                }
+            });
+        });
+    }
+};
+
+
 export const signup = user => {
     return fetch(`${API}/signup`, {
         mode:'cors',

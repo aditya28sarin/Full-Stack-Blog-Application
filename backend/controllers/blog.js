@@ -52,7 +52,7 @@ exports.create = (req, res) => {
         let blog = new Blog();
         blog.title = title;
         blog.body = body;
-        // blog.postedBy = req.user._id;
+        // blog.postedBy = req.auth._id;
         blog.excerpt = smartTrim(body, 320, ' ', '...');
         blog.slug = slugify(title).toLowerCase();
         blog.mtitle = `${title} | ${process.env.APP_NAME}`;
@@ -301,4 +301,23 @@ exports.listRelated = (req, res) => {
             }
             res.json(blogs);
         });
+};
+
+exports.listSearch = (req, res) => {
+    const { search } = req.query;
+    if (search) {
+        Blog.find(
+            {
+                $or: [{ title: { $regex: search, $options: 'i' } }, { body: { $regex: search, $options: 'i' } }]
+            },
+            (err, blogs) => {
+                if (err) {
+                    return res.status(400).json({
+                        error: errorHandler(err)
+                    });
+                }
+                res.json(blogs);
+            }
+        ).select('-photo -body');
+    }
 };
